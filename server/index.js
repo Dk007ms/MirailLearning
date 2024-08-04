@@ -27,10 +27,9 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(
   cors({
-    origin: "https://miraillearning.vercel.app", // Allowing only your frontend domain
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    credentials: true, // Enabling credentials
-    optionsSuccessStatus: 204,
+    origin: "https://miraillearning.vercel.app", // Allow only this origin
+    methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
+    allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
   })
 )
 app.options("*", cors()) // Handling preflight requests
