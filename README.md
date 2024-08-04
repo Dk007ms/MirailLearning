@@ -1,1 +1,1 @@
-# StudyNotion Edtech Project
+# MiraiLearning Edtech Project
