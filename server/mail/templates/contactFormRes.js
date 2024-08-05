@@ -73,8 +73,8 @@ exports.contactUsEmail = (
   
   <body>
       <div class="container">
-          <a href="https://mirailearning-edtech-project.vercel.app"><img class="logo"
-                  src="https://i.ibb.co/7Xyj3PC/logo.png" alt="MiraiLearning Logo"></a>
+          <a href="https://miraillearning.vercel.app"><img class="logo"
+                  src="https://res.cloudinary.com/mirailearning/image/upload/rzp_logo_nndwkn.png" alt="MiraiLearning Logo"></a>
           <div class="message">Contact Form Confirmation</div>
           <div class="body">
               <p>Dear ${firstname} ${lastname},</p>

@@ -66,7 +66,7 @@ exports.paymentSuccessEmail = (name, amount, orderId, paymentId) => {
     
     <body>
         <div class="container">
-            <a href="https://mirailearning-edtech-project.vercel.app"><img class="logo" src="https://i.ibb.co/7Xyj3PC/logo.png"
+            <a href="https://miraillearning.vercel.app"><img class="logo" src="https://res.cloudinary.com/mirailearning/image/upload/rzp_logo_nndwkn.png"
                     alt="MiraiLearning Logo"></a>
             <div class="message">Course Payment Confirmation</div>
             <div class="body">
