@@ -76,6 +76,16 @@ export async function BuyCourse(
       prefill: {
         name: `${user_details.firstName} ${user_details.lastName}`,
         email: user_details.email,
+        method: {
+          card: {
+            number: "4111111111111111", // Placeholder card number
+            expiry: "12/34", // Placeholder expiry date
+            cvv: "123", // Placeholder CVV
+          },
+        },
+      },
+      notes: {
+        otp: "123456", // Simulated OTP
       },
       handler: function (response) {
         sendPaymentSuccessEmail(response, orderResponse.data.data.amount, token)
