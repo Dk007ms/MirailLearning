@@ -2,15 +2,14 @@ import { useState } from "react"
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai"
 import { useDispatch } from "react-redux"
 import { Link, useNavigate } from "react-router-dom"
-
 import { login } from "../../../services/operations/authAPI"
 
 function LoginForm() {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+    email: "mirailearning@gmail.com",
+    password: "123456",
   })
 
   const [showPassword, setShowPassword] = useState(false)
