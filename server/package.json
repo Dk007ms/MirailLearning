@@ -1,16 +1,16 @@
 {
-	"name": "studynotion-backend",
+	"name": "mirailearning",
 	"version": "1.0.0",
-	"description": "studynotion-backend",
+	"description": "mirailearning",
 	"main": "index.js",
 	"scripts": {
 		"start": "node index.js",
 		"dev": "nodemon index.js"
 	},
 	"keywords": [
-		"studynotion-backend"
+		"mirailearning backend"
 	],
-	"author": "Saikat Mukherjee",
+	"author": "Dhruv Kaushik",
 	"license": "ISC",
 	"dependencies": {
 		"bcrypt": "^5.1.0",

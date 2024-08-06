@@ -17,6 +17,12 @@ export default function Cart() {
   return (
     <>
       <h1 className="mb-14 text-3xl font-medium text-richblack-5">Cart</h1>
+      <div className="mb-8 text-xl font-medium text-richblack-5 flex gap-16">
+        <div>Card No: 4111-1111-1111-1111</div>
+        <div>Expiry: 11/34</div>
+        <div>CVV: 411</div>
+        <div>OTP: 151515</div>
+      </div>
       <p className="border-b border-b-richblack-400 pb-2 font-semibold text-richblack-400">
         {totalItems} Courses in Cart
       </p>

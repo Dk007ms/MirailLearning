@@ -5,16 +5,8 @@ import { BsFillCaretRightFill } from "react-icons/bs"
 import { FaShareSquare } from "react-icons/fa"
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom"
-
 import { addToCart } from "../../../slices/cartSlice"
 import { ACCOUNT_TYPE } from "../../../utils/constants"
-
-// const CourseIncludes = [
-//   "8 hours on-demand video",
-//   "Full Lifetime access",
-//   "Access on Mobile and TV",
-//   "Certificate of completion",
-// ]
 
 function CourseDetailsCard({ course, setConfirmationModal, handleBuyCourse }) {
   const { user } = useSelector((state) => state.profile)
@@ -52,8 +44,6 @@ function CourseDetailsCard({ course, setConfirmationModal, handleBuyCourse }) {
     })
   }
 
-  // console.log("Student already enrolled ", course?.studentsEnroled, user?._id)
-
   return (
     <>
       <div
@@ -83,6 +73,29 @@ function CourseDetailsCard({ course, setConfirmationModal, handleBuyCourse }) {
                 ? "Go To Course"
                 : "Buy Now"}
             </button>
+            {user && course?.studentsEnroled.includes(user?._id) ? (
+              ""
+            ) : (
+              <div className="flex flex-wrap gap-8">
+                <div class="flex items-center">
+                  <b class="mr-2 font-bold text-yellow-25">Card No:</b>{" "}
+                  <span>4111-1111-1111-1111</span>
+                </div>
+                <div class="flex items-center">
+                  <b class="mr-2 font-bold text-yellow-25">Expiry:</b> <span>11/34</span>
+                </div>
+                <div class="flex items-center">
+                  <b class="mr-2 font-bold text-yellow-25">CVV:</b> <span>411</span>
+                </div>
+                <div class="flex items-center">
+                  <b class="mr-2 font-bold text-yellow-25">OTP:</b> <span>151515</span>
+                </div>
+
+                <div className="font-bold text-red-50">
+                  Or use bank payment directly !!
+                </div>
+              </div>
+            )}
             {(!user || !course?.studentsEnroled.includes(user?._id)) && (
               <button onClick={handleAddToCart} className="blackButton">
                 Add to Cart

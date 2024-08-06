@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react"
+import { toast } from "react-hot-toast"
 import { BiInfoCircle } from "react-icons/bi"
 import { HiOutlineGlobeAlt } from "react-icons/hi"
 import { ReactMarkdown } from "react-markdown/lib/react-markdown"
@@ -13,7 +14,9 @@ import CourseDetailsCard from "../components/core/Course/CourseDetailsCard"
 import { formatDate } from "../services/formatDate"
 import { fetchCourseDetails } from "../services/operations/courseDetailsAPI"
 import { BuyCourse } from "../services/operations/studentFeaturesAPI"
+import { addToCart } from "../slices/cartSlice"
 import GetAvgRating from "../utils/avgRating"
+import { ACCOUNT_TYPE } from "../utils/constants"
 import Error from "./Error"
 
 function CourseDetails() {
@@ -23,6 +26,25 @@ function CourseDetails() {
   const { paymentLoading } = useSelector((state) => state.course)
   const dispatch = useDispatch()
   const navigate = useNavigate()
+
+  const handleAddToCart = () => {
+    if (user && user?.accountType === ACCOUNT_TYPE.INSTRUCTOR) {
+      toast.error("You are an Instructor. You can't buy a course.")
+      return
+    }
+    if (token) {
+      dispatch(addToCart(course))
+      return
+    }
+    setConfirmationModal({
+      text1: "You are not logged in!",
+      text2: "Please login to add To Cart",
+      btn1Text: "Login",
+      btn2Text: "Cancel",
+      btn1Handler: () => navigate("/login"),
+      btn2Handler: () => setConfirmationModal(null),
+    })
+  }
 
   // Getting courseId from url parameter
   const { courseId } = useParams()
@@ -101,6 +123,8 @@ function CourseDetails() {
     createdAt,
   } = response.data?.courseDetails
 
+  const course = response?.data?.courseDetails
+
   const handleBuyCourse = () => {
     if (token) {
       BuyCourse(token, [courseId], user, navigate, dispatch)
@@ -170,20 +194,56 @@ function CourseDetails() {
                 </p>
               </div>
             </div>
-            <div className="flex w-full flex-col gap-4 border-y border-y-richblack-500 py-4 lg:hidden">
-              <p className="space-x-3 pb-4 text-3xl font-semibold text-richblack-5">
-                Rs. {price}
-              </p>
-              <button className="yellowButton" onClick={handleBuyCourse}>
-                Buy Now
+            <div className="flex flex-col gap-4 lg:hidden">
+              <button
+                className="yellowButton"
+                onClick={
+                  user && course?.studentsEnroled.includes(user?._id)
+                    ? () => navigate("/dashboard/enrolled-courses")
+                    : handleBuyCourse
+                }
+              >
+                {user && course?.studentsEnroled.includes(user?._id)
+                  ? "Go To Course"
+                  : "Buy Now"}
               </button>
-              <button className="blackButton">Add to Cart</button>
+              {(!user || !course?.studentsEnroled.includes(user?._id)) && (
+                <button onClick={handleAddToCart} className="blackButtonMobile">
+                  Add to Cart
+                </button>
+              )}
+              {user && course?.studentsEnroled.includes(user?._id) ? (
+                ""
+              ) : (
+                <div className="flex flex-wrap gap-8 text-white">
+                  <div class="flex items-center">
+                    <b class="mr-2 font-bold text-yellow-25">Card No:</b>{" "}
+                    <span>4111-1111-1111-1111</span>
+                  </div>
+                  <div class="flex items-center">
+                    <b class="mr-2 font-bold text-yellow-25">Expiry:</b>{" "}
+                    <span>11/34</span>
+                  </div>
+                  <div class="flex items-center">
+                    <b class="mr-2 font-bold text-yellow-25">CVV:</b>{" "}
+                    <span>411</span>
+                  </div>
+                  <div class="flex items-center">
+                    <b class="mr-2 font-bold text-yellow-25">OTP:</b>{" "}
+                    <span>151515</span>
+                  </div>
+
+                  <div className="text-red-50 font-bold">
+                    Or use bank payment directly !!
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           {/* Courses Card */}
           <div className="right-[1rem] top-[60px] mx-auto hidden min-h-[600px] w-1/3 max-w-[410px] translate-y-24 md:translate-y-0 lg:absolute  lg:block">
             <CourseDetailsCard
-              course={response?.data?.courseDetails}
+              course={course}
               setConfirmationModal={setConfirmationModal}
               handleBuyCourse={handleBuyCourse}
             />
