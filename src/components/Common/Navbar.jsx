@@ -257,12 +257,19 @@ function Navbar() {
                   >
                     <p className="text-white">Dashboard</p>
                   </Link>
-                  <SidebarLink
-                    link={{ name: "My Courses", path: "/dashboard/my-courses" }}
-                    iconName="VscVm"
-                  />
+                  {user.accountType !== "Student" && (
+                    <SidebarLink
+                      open={handleMobileMenuToggle}
+                      link={{
+                        name: "My Courses",
+                        path: "/dashboard/my-courses",
+                      }}
+                      iconName="VscVm"
+                    />
+                  )}
                   {user.accountType !== "Instructor" && (
                     <SidebarLink
+                      open={handleMobileMenuToggle}
                       link={{
                         name: "Enrolled Courses",
                         path: "/dashboard/enrolled-courses",
@@ -272,6 +279,7 @@ function Navbar() {
                   )}
                   {user.accountType !== "Student" && (
                     <SidebarLink
+                      open={handleMobileMenuToggle}
                       link={{
                         name: "Add Course",
                         path: "/dashboard/add-course",
@@ -282,6 +290,7 @@ function Navbar() {
 
                   <div className="flex flex-col">
                     <SidebarLink
+                      open={handleMobileMenuToggle}
                       link={{ name: "Settings", path: "/dashboard/settings" }}
                       iconName="VscSettingsGear"
                     />
