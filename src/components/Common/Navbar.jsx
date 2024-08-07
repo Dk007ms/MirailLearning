@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from "react"
-import { AiOutlineMenu, AiOutlineShoppingCart } from "react-icons/ai"
+import {
+  AiOutlineClose,
+  AiOutlineMenu,
+  AiOutlineShoppingCart,
+} from "react-icons/ai"
 import { BsChevronDown } from "react-icons/bs"
-import { useSelector } from "react-redux"
-import { Link, matchPath, useLocation } from "react-router-dom"
+import { useDispatch, useSelector } from "react-redux"
+import { Link, matchPath, useLocation, useNavigate } from "react-router-dom"
 
 import logo from "../../assets/Logo/Logo-Full-Light.png"
 import { NavbarLinks } from "../../data/navbar-links"
 import { apiConnector } from "../../services/apiConnector"
 import { categories } from "../../services/apis"
+import { logout } from "../../services/operations/authAPI"
 import { ACCOUNT_TYPE } from "../../utils/constants"
 import ProfileDropdown from "../core/Auth/ProfileDropdown"
 
@@ -16,9 +21,14 @@ function Navbar() {
   const { user } = useSelector((state) => state.profile)
   const { totalItems } = useSelector((state) => state.cart)
   const location = useLocation()
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
 
+  const [open, setOpen] = useState(false)
   const [subLinks, setSubLinks] = useState([])
   const [loading, setLoading] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
 
   useEffect(() => {
     const fetchSubLinks = async () => {
@@ -40,6 +50,16 @@ function Navbar() {
 
   const matchRoute = (route) => matchPath({ path: route }, location.pathname)
 
+  const handleMobileMenuToggle = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen)
+    if (isProfileDropdownOpen) setIsProfileDropdownOpen(false)
+  }
+
+  const handleProfileDropdownToggle = () => {
+    setIsProfileDropdownOpen(!isProfileDropdownOpen)
+    if (isMobileMenuOpen) setIsMobileMenuOpen(false)
+  }
+
   return (
     <div
       className={`flex h-14 items-center justify-center border-b-[1px] border-b-richblack-700 ${
@@ -49,9 +69,16 @@ function Navbar() {
       <div className="flex w-11/12 max-w-maxContent items-center justify-between">
         {/* Logo */}
         <Link to="/">
-          <img src={logo} alt="Logo" width={160} height={32} loading="lazy" className=" object-cover" />
+          <img
+            src={logo}
+            alt="Logo"
+            width={160}
+            height={32}
+            loading="lazy"
+            className="object-cover"
+          />
         </Link>
-        {/* Navigation links */}
+        {/* Desktop Navigation links */}
         <nav className="hidden md:block">
           <ul className="flex gap-x-6 text-richblack-25">
             {NavbarLinks.map((link, index) => (
@@ -110,6 +137,127 @@ function Navbar() {
             ))}
           </ul>
         </nav>
+
+        {/* Mobile Navigation links */}
+        <div className="flex items-center md:hidden">
+          <button onClick={handleMobileMenuToggle} className="z-50">
+            {isMobileMenuOpen ? (
+              <AiOutlineClose fontSize={24} fill="#AFB2BF" />
+            ) : (
+              token?(<img
+                src={user?.image}
+                alt={`profile-${user?.firstName}`}
+                className="aspect-square w-[30px] rounded-full object-cover"
+              />):(<AiOutlineMenu fontSize={24} fill="#AFB2BF" />)
+            )}
+          </button>
+        </div>
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div
+            className={`fixed right-0 top-0 z-40 h-full w-3/4 transform bg-richblack-800 p-4 transition-transform duration-300 ease-in-out ${
+              isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
+            } md:hidden`}
+          >
+            <ul className="mt-14 flex flex-col gap-y-4 text-richblack-25">
+              {NavbarLinks.map((link, index) => (
+                <li key={index}>
+                  {link.title === "Catalog" ? (
+                    <div className="w-full">
+                      {loading ? (
+                        <p>Loading...</p>
+                      ) : subLinks.length ? (
+                        <select
+                          className="mt-2 w-full rounded-lg border border-richblack-700 bg-richblack-800 py-2 text-yellow-25 focus:outline-none focus:ring-2 focus:ring-yellow-25"
+                          onChange={(e) => {
+                            const selectedSubLink = subLinks.find(
+                              (subLink) =>
+                                subLink.name
+                                  .split(" ")
+                                  .join("-")
+                                  .toLowerCase() === e.target.value
+                            )
+                            if (selectedSubLink) {
+                              handleMobileMenuToggle()
+                              navigate(`/catalog/${e.target.value}`)
+                            }
+                          }}
+                        >
+                          <option value="" disabled selected>
+                            Catalog
+                          </option>
+                          {subLinks
+                            .filter(
+                              (subLink) =>
+                                subLink.courses && subLink.courses.length > 0
+                            )
+                            .map((subLink, i) => (
+                              <option
+                                key={i}
+                                value={subLink.name
+                                  .split(" ")
+                                  .join("-")
+                                  .toLowerCase()}
+                              >
+                                {subLink.name}
+                              </option>
+                            ))}
+                        </select>
+                      ) : (
+                        <p>No Courses Found</p>
+                      )}
+                    </div>
+                  ) : (
+                    <Link to={link.path} onClick={handleMobileMenuToggle}>
+                      <p
+                        className={`${
+                          matchRoute(link.path)
+                            ? "text-yellow-25"
+                            : "text-richblack-25"
+                        }`}
+                      >
+                        {link.title}
+                      </p>
+                    </Link>
+                  )}
+                </li>
+              ))}
+
+              {/* Login / Signup for Mobile */}
+              {token === null ? (
+                <>
+                  <Link to="/login" onClick={handleMobileMenuToggle}>
+                    <button className="w-full rounded-[8px] border border-richblack-700 bg-richblack-800 px-[12px] py-[8px] text-left text-richblack-100">
+                      Log in
+                    </button>
+                  </Link>
+                  <Link to="/signup" onClick={handleMobileMenuToggle}>
+                    <button className="w-full rounded-[8px] border border-richblack-700 bg-richblack-800 px-[12px] py-[8px] text-left text-richblack-100">
+                      Sign up
+                    </button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/dashboard/my-profile"
+                    onClick={handleMobileMenuToggle}
+                  >
+                    <p className="text-yellow-25">Dashboard</p>
+                  </Link>
+                  <Link
+                    onClick={() => {
+                      dispatch(logout(navigate))
+                      handleMobileMenuToggle()
+                    }}
+                  >
+                    <p className="text-yellow-25">Logout</p>
+                  </Link>
+                </>
+              )}
+            </ul>
+          </div>
+        )}
         {/* Login / Signup / Dashboard */}
         <div className="hidden items-center gap-x-4 md:flex">
           {user && user.accountType !== ACCOUNT_TYPE.INSTRUCTOR && (
@@ -122,7 +270,7 @@ function Navbar() {
               )}
             </Link>
           )}
-          {token === null && (
+          {token === null ? (
             <>
               <Link to="/login">
                 <button className="rounded-[8px] border border-richblack-700 bg-richblack-800 px-[12px] py-[8px] text-richblack-100">
@@ -135,12 +283,14 @@ function Navbar() {
                 </button>
               </Link>
             </>
+          ) : (
+            <>
+              <div onClick={handleProfileDropdownToggle}>
+                <ProfileDropdown />
+              </div>
+            </>
           )}
-          {token !== null && <ProfileDropdown />}
         </div>
-        <button className="mr-4 md:hidden">
-          <AiOutlineMenu fontSize={24} fill="#AFB2BF" />
-        </button>
       </div>
     </div>
   )
