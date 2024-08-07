@@ -5,6 +5,7 @@ import {
   AiOutlineShoppingCart,
 } from "react-icons/ai"
 import { BsChevronDown } from "react-icons/bs"
+import { VscSignOut } from "react-icons/vsc"
 import { useDispatch, useSelector } from "react-redux"
 import { Link, matchPath, useLocation, useNavigate } from "react-router-dom"
 
@@ -15,6 +16,8 @@ import { categories } from "../../services/apis"
 import { logout } from "../../services/operations/authAPI"
 import { ACCOUNT_TYPE } from "../../utils/constants"
 import ProfileDropdown from "../core/Auth/ProfileDropdown"
+import SidebarLink from "../core/Dashboard/SidebarLink"
+import ConfirmationModal from "./ConfirmationModal"
 
 function Navbar() {
   const { token } = useSelector((state) => state.auth)
@@ -24,7 +27,7 @@ function Navbar() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
-  const [open, setOpen] = useState(false)
+  const [confirmationModal, setConfirmationModal] = useState(null)
   const [subLinks, setSubLinks] = useState([])
   const [loading, setLoading] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -48,6 +51,13 @@ function Navbar() {
     fetchSubLinks()
   }, [])
 
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.height = "100vh"
+    } else {
+      document.body.style.height = "max-content"
+    }
+  }, [isMobileMenuOpen])
   const matchRoute = (route) => matchPath({ path: route }, location.pathname)
 
   const handleMobileMenuToggle = () => {
@@ -143,20 +153,22 @@ function Navbar() {
           <button onClick={handleMobileMenuToggle} className="z-50">
             {isMobileMenuOpen ? (
               <AiOutlineClose fontSize={24} fill="#AFB2BF" />
-            ) : (
-              token?(<img
+            ) : token ? (
+              <img
                 src={user?.image}
                 alt={`profile-${user?.firstName}`}
                 className="aspect-square w-[30px] rounded-full object-cover"
-              />):(<AiOutlineMenu fontSize={24} fill="#AFB2BF" />)
+              />
+            ) : (
+              <AiOutlineMenu fontSize={24} fill="#AFB2BF" />
             )}
           </button>
         </div>
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div
-            className={`fixed right-0 top-0 z-40 h-full w-3/4 transform bg-richblack-800 p-4 transition-transform duration-300 ease-in-out ${
-              isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
+            className={`fixed right-0 top-0 z-40 h-full bg-richblack-800 p-4 ${
+              isMobileMenuOpen ? "w-full opacity-100" : "w-0 opacity-0"
             } md:hidden`}
           >
             <ul className="mt-14 flex flex-col gap-y-4 text-richblack-25">
@@ -243,19 +255,66 @@ function Navbar() {
                     to="/dashboard/my-profile"
                     onClick={handleMobileMenuToggle}
                   >
-                    <p className="text-yellow-25">Dashboard</p>
+                    <p className="text-white">Dashboard</p>
                   </Link>
-                  <Link
-                    onClick={() => {
-                      dispatch(logout(navigate))
-                      handleMobileMenuToggle()
-                    }}
-                  >
-                    <p className="text-yellow-25">Logout</p>
-                  </Link>
+                  <SidebarLink
+                    link={{ name: "My Courses", path: "/dashboard/my-courses" }}
+                    iconName="VscVm"
+                  />
+                  {user.accountType !== "Instructor" && (
+                    <SidebarLink
+                      link={{
+                        name: "Enrolled Courses",
+                        path: "/dashboard/enrolled-courses",
+                      }}
+                      iconName="VscMortarBoard"
+                    />
+                  )}
+                  {user.accountType !== "Student" && (
+                    <SidebarLink
+                      link={{
+                        name: "Add Course",
+                        path: "/dashboard/add-course",
+                      }}
+                      iconName="VscAdd"
+                    />
+                  )}
+
+                  <div className="flex flex-col">
+                    <SidebarLink
+                      link={{ name: "Settings", path: "/dashboard/settings" }}
+                      iconName="VscSettingsGear"
+                    />
+                    <button
+                      onClick={() =>
+                        setConfirmationModal({
+                          text1: "Are you sure?",
+                          text2: "You will be logged out of your account.",
+                          btn1Text: "Logout",
+                          btn2Text: "Cancel",
+                          btn1Handler: () => {
+                            dispatch(logout(navigate))
+                            handleMobileMenuToggle()
+                            setConfirmationModal(null) // Close modal after logout
+                          },
+                          btn2Handler: () => setConfirmationModal(null),
+                        })
+                      }
+                      className="px-8 py-2 text-sm font-medium text-richblack-300"
+                    >
+                      <div className="flex items-center gap-x-2">
+                        <VscSignOut className="text-lg" />
+                        <span>Logout</span>
+                      </div>
+                    </button>
+                  </div>
                 </>
               )}
             </ul>
+
+            {confirmationModal && (
+              <ConfirmationModal modalData={confirmationModal} />
+            )}
           </div>
         )}
         {/* Login / Signup / Dashboard */}
